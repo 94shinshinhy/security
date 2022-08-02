@@ -2,6 +2,8 @@ package com.example.security.oauth;
 
 import com.example.security.auth.PrincipalDetails;
 import com.example.security.model.User;
+import com.example.security.oauth.provider.GoogleUserInfo;
+import com.example.security.oauth.provider.OAuth2UserInfo;
 import com.example.security.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -31,11 +33,20 @@ public class PrincipalOauthUserService extends DefaultOAuth2UserService {
         // userRequest 정보 -> loadUser함수 호출 -> 구글로부터 회원프로필 받아줌
         System.out.println("getAttributes : " + oauth2User.getAttributes());
 
-        String provider = userRequest.getClientRegistration().getRegistrationId();
-        String providerId = oauth2User.getAttribute("sub");
+        // 회원가입
+        OAuth2UserInfo oAuth2UserInfo = null;
+        if(userRequest.getClientRegistration().getRegistrationId().equals("google")){
+            System.out.println("구글 로그인 요청");
+            oAuth2UserInfo = new GoogleUserInfo(oauth2User.getAttributes());
+        } else {
+            System.out.println("구글만 지원");
+        }
+
+        String provider = oAuth2UserInfo.getProvider();
+        String providerId = oAuth2UserInfo.getProviderId();
         String username = provider + "_" + providerId;
         String password = bCryptPasswordEncoder.encode(("겟인데어"));
-        String email = oauth2User.getAttribute("email");
+        String email = oAuth2UserInfo.getEmail();
         String role = "ROLE_USER";
 
         User userEntity = userRepository.findByUsername(username);
