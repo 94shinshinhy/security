@@ -3,6 +3,7 @@ package com.example.security.oauth;
 import com.example.security.auth.PrincipalDetails;
 import com.example.security.model.User;
 import com.example.security.oauth.provider.GoogleUserInfo;
+import com.example.security.oauth.provider.NaverUserInfo;
 import com.example.security.oauth.provider.OAuth2UserInfo;
 import com.example.security.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,8 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+
+import java.util.Map;
 
 @Service
 public class PrincipalOauthUserService extends DefaultOAuth2UserService {
@@ -38,8 +41,11 @@ public class PrincipalOauthUserService extends DefaultOAuth2UserService {
         if(userRequest.getClientRegistration().getRegistrationId().equals("google")){
             System.out.println("구글 로그인 요청");
             oAuth2UserInfo = new GoogleUserInfo(oauth2User.getAttributes());
+        } else if(userRequest.getClientRegistration().getRegistrationId().equals("naver")){
+            System.out.println("네이버 로그인 요청");
+            oAuth2UserInfo = new NaverUserInfo((Map)oauth2User.getAttributes().get("response"));
         } else {
-            System.out.println("구글만 지원");
+            System.out.println("구글, 네이버만 지원");
         }
 
         String provider = oAuth2UserInfo.getProvider();
